@@ -85,9 +85,10 @@ const Login = () => {
                       Password
                     </label>
                     <Field
-                      type="text"
+                      type="password"
                       as="input"
                       name="password"
+                      
                       className="border-2 border-gray-100 w-full text-base px-2 py-1 focus:outline-none focus:ring-0 focus:border-gray-600 rounded-sm p-4 mt-1 mb-2"
                       placeholder="Enter Password .."
                     />
