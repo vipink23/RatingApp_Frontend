@@ -20,8 +20,9 @@ const Login = () => {
 
       console.log(res.response);
 
-      const role = res.data.Role;
-      if (role === "User") {
+      const role = res.data.Role?.toUpperCase();
+      
+      if (role === "USER") {
         navigate("/Rating");
       } else {
         console.log(res.data);

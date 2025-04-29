@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUser,
-} from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useUser } from "../Context/context";
 import { useEffect } from "react";
 import axios from "axios";
@@ -32,6 +30,10 @@ const Feedback = () => {
     updateAuth(null);
     localStorage.removeItem("Auth", null);
   };
+
+  useEffect(() => {
+    console.log(auth?.Role, "auth");
+  }, [auth]);
 
   const HandleFileUpload = (e, setFieldValue) => {
     const selectedFile = e.target.files[0];
@@ -91,8 +93,11 @@ const Feedback = () => {
         {!success && (
           <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-4xl px-4 sm:px-6 md:px-12 lg:px-20 py-8 sm:py-10 md:py-16 lg:py-18 shadow-lg bg-white rounded-xl border-2 border-gray-100">
             {/* content */}
-            <div className="absolute top-10 right-10">
-              <div className="bg-gray-200 h-12 w-12 rounded-full flex justify-center items-center">
+            <div className="absolute top-3 right-8 flex items-center space-x-2">
+              <div className="text-gray-700 font-semibold">
+                Hello {auth?.User}
+              </div>
+              <div className="bg-gray-200 h-10 w-10 rounded-full flex justify-center items-center">
                 <FontAwesomeIcon
                   icon={faUser}
                   className="text-gray-600 text-xl"
@@ -128,7 +133,6 @@ const Feedback = () => {
             >
               {({ setFieldValue }) => (
                 <>
-                  
                   {useEffect(() => {
                     setFieldValue("User", auth?.UserId);
                   }, [auth?.UserId, setFieldValue])}
@@ -210,7 +214,7 @@ const Feedback = () => {
                           <input
                             type="file"
                             className="hidden"
-                            onChange={(e) => HandleFileUpload(e,setFieldValue)}
+                            onChange={(e) => HandleFileUpload(e, setFieldValue)}
                           />
                           {preview ? (
                             <img
@@ -228,7 +232,7 @@ const Feedback = () => {
                         {preview && (
                           <button
                             type="button"
-                            onClick={()=>handleRemoveImage(setFieldValue)}
+                            onClick={() => handleRemoveImage(setFieldValue)}
                             className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                           >
                             ✕

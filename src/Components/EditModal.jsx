@@ -84,8 +84,6 @@ function EditModal({ review, onClose, onUpdate }) {
           //handle error
           console.log(response);
         });
-
-
   }
 
   return (

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faPencil } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faPencil, faUser } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useUser } from "../Context/context";
 import NoImage from "../assets/No-Image-Placeholder.svg";
@@ -15,7 +15,7 @@ const Dashboard = () => {
   const itemsPerPage = 5;
   const { auth, updateAuth } = useUser();
   const [showModal, setShowModal] = useState(false);
-  const [review , setReview] = useState("")
+  const [review, setReview] = useState("");
   //   const hasCalledFeedbacks = useRef(false);
 
   const getFeedbacks = async (Token) => {
@@ -26,6 +26,7 @@ const Dashboard = () => {
         },
       });
       setData(res.data);
+      setOriginalData(res.data);
     } catch (error) {
       console.error("Error fetching feedbacks:", error);
     }
@@ -75,21 +76,22 @@ const Dashboard = () => {
         }
       });
     } else {
-      getFeedbackbyId(id)  
+      getFeedbackbyId(id);
       setShowModal(true);
     }
   };
 
-  const getFeedbackbyId = async (id)=>{
+  const getFeedbackbyId = async (id) => {
     try {
-        const res = await axios.get(`http://localhost:8080/GetFeedbackById/${id}`);
-        console.log(res);
-        setReview(res.data)
+      const res = await axios.get(
+        `http://localhost:8080/GetFeedbackById/${id}`
+      );
+      console.log(res);
+      setReview(res.data);
     } catch (error) {
-        console.log(error, 'err');
-        
+      console.log(error, "err");
     }
-  }
+  };
 
   const deleteFeedback = async (id) => {
     try {
@@ -116,12 +118,52 @@ const Dashboard = () => {
   const handleCloseModal = () => {
     // setSelectedEmployee(null);
     setShowModal(false);
-    setReview("")
+    setReview("");
+  };
+
+  const [searchquery, setSearchQuery] = useState("");
+  const [originalData, setOriginalData] = useState([]);
+
+  const handleSerch = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    const matchedItems = originalData.filter((item) => {
+      const matchUser = item.User?.toUpperCase().includes(value.toUpperCase());
+      const matchDate = item.ratingDate?.includes(value);
+  
+      // Handle the matching for rating length
+      const matchRating = (Array.isArray(item.rating) || typeof item.rating === 'string') 
+                           ? item.rating.length === Number(value) 
+                           : false;
+  
+      // Return items if any of the conditions match
+      return matchUser || matchDate || matchRating;
+    });
+  
+    setData(matchedItems);
+  };
+  
+  const handleLogout = () => {
+    updateAuth(null);
+    localStorage.removeItem("Auth", null);
   };
 
   return (
     <>
-      <div className="flex  p-8 min-h-screen bg-gray-100 w-full">
+      <div className="flex  p-15 min-h-screen bg-gray-100 w-full">
+        <div className="absolute top-3 right-2 flex items-center space-x-2">
+          <div className="text-gray-700 font-semibold">Hello Admin</div>
+          <div className="bg-gray-200 h-10 w-10 rounded-full flex justify-center items-center">
+            <FontAwesomeIcon
+              icon={faUser}
+              className="text-gray-600 text-xl"
+              onClick={handleLogout}
+              style={{ cursor: "pointer" }}
+            />
+          </div>
+        </div>
+
         <div className="w-full shadow-lg bg-white rounded-xl border-2 border-gray-100 py-7 px-5 min-h-screen">
           <div className="flex flex-wrap justify-between items-center gap-2 mb-8 ">
             <h2 className="text-xl font-semibold text-gray-700">
@@ -130,9 +172,9 @@ const Dashboard = () => {
             <div className="flex flex-wrap gap-3 ml-auto">
               <input
                 type="text"
-                // value={searchquery}
+                value={searchquery}
                 // onChange={(e) => setSearchQuery(e.target.value)}
-                // onChange={handleSerch}
+                onChange={handleSerch}
                 placeholder="Search rating, Date & Name"
                 className="w-[290px] px-3 py-1 border rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200"
               />
@@ -162,7 +204,10 @@ const Dashboard = () => {
                   currentItems.map((item, index) => (
                     <tr key={index} className="border-t">
                       <td className="p-4">{item.User}</td>
-                      <td className="p-4">{item.job}</td>
+                      <td className="p-4">
+                        {"⭐".repeat(item.rating.length)}
+                        {"☆".repeat(5 - item.rating.length)}
+                      </td>
                       <td className="p-4">
                         {item.image === "" ? (
                           <div>
@@ -244,15 +289,14 @@ const Dashboard = () => {
               ))}
             </div>
             {showModal && (
-          <EditModal
-            review={review}
-            onClose={handleCloseModal}
-            // onUpdate={handleUpdate}
-          />
-        )}
+              <EditModal
+                review={review}
+                onClose={handleCloseModal}
+                // onUpdate={handleUpdate}
+              />
+            )}
           </div>
         </div>
-       
       </div>
     </>
   );
